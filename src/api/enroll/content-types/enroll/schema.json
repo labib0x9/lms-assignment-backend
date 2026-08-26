@@ -1,0 +1,14 @@
+{
+  "kind": "collectionType",
+  "collectionName": "enrolls",
+  "info": {
+    "singularName": "enroll",
+    "pluralName": "enrolls",
+    "displayName": "Enroll"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {}
+}
