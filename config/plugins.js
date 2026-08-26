@@ -23,9 +23,13 @@ const deniedExecutableTypes = [
 module.exports = () => ({
   'users-permissions': {
     config: {
-      jwtManagement: 'refresh',
-      sessions: {
-        httpOnly: true,
+      // jwtManagement: 'refresh',
+      // sessions: {
+      //   httpOnly: true,
+      // },
+      jwtManagement: 'legacy-support',
+      jwt: {
+        expiresIn: '7d',
       },
     },
   },
