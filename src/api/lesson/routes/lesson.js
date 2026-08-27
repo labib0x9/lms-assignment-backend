@@ -8,6 +8,9 @@ const { createCoreRouter } = require('@strapi/strapi').factories;
 
 module.exports = createCoreRouter('api::lesson.lesson', {
   config: {
+    findOne: {
+      policies: ['global::can-view-lesson'],
+    },
     create: {
       policies: ['global::is-lesson-owner'],
     },

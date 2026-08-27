@@ -12,7 +12,7 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
     await this.validateQuery(ctx);
     const sanitizedQuery = await this.sanitizeQuery(ctx);
 
-    const { results, pagination } = await strapi.service('api::lesson.lesson').find({
+    const results = await strapi.documents('api::lesson.lesson').findMany({
       ...(typeof sanitizedQuery === 'object' && sanitizedQuery !== null ? sanitizedQuery : {}),
       populate: {
         course: {
@@ -22,20 +22,27 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
     });
 
     const sanitizedResults = await this.sanitizeOutput(results, ctx);
-    return this.transformResponse(sanitizedResults, { pagination });
+    return this.transformResponse(sanitizedResults);
   },
 
-  // GET /api/lessons/:id
+  // GET /api/lessons/:id (Access checked via global::can-view-lesson policy)
   async findOne(ctx) {
     const { id } = ctx.params;
+
     await this.validateQuery(ctx);
     const sanitizedQuery = await this.sanitizeQuery(ctx);
 
-    const entity = await strapi.service('api::lesson.lesson').findOne(id, {
+    const entity = await strapi.documents('api::lesson.lesson').findOne({
+      documentId: id,
       ...(typeof sanitizedQuery === 'object' && sanitizedQuery !== null ? sanitizedQuery : {}),
       populate: {
         course: {
           fields: ['id', 'documentId', 'title', 'price'],
+          populate: {
+            Instructors: {
+              fields: ['id', 'username', 'email'],
+            },
+          },
         },
       },
     });
@@ -54,7 +61,7 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
         ? body.data
         : {};
 
-    const courseParam = bodyData.course?.documentId || bodyData.course;
+    const courseParam = bodyData.course?.documentId || bodyData.course?.id || bodyData.course;
 
     // Resolve parent course documentId
     let courseDocId = null;
@@ -95,9 +102,7 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
       order: Number(calculatedOrder),
       ...(courseDocId
         ? {
-            course: {
-              connect: [courseDocId],
-            },
+            course: courseDocId,
           }
         : {}),
     };
