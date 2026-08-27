@@ -19,7 +19,9 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
           fields: ['id', 'username', 'email', 'documentId'],
         },
         thumbnail: true,
-        lessons: true,
+        lessons: {
+          sort: 'order:asc',
+        },
       },
     });
 
@@ -42,6 +44,7 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
           username: inst.username,
           email: inst.email,
         })),
+        lessons: course.lessons || [],
       };
     });
 
@@ -54,14 +57,18 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
     await this.validateQuery(ctx);
     const sanitizedQuery = await this.sanitizeQuery(ctx);
 
-    const entity = await strapi.service('api::course.course').findOne(id, {
+    // Support both documentId (string) and legacy database id (number)
+    const entity = await strapi.documents('api::course.course').findOne({
+      documentId: id,
       ...(typeof sanitizedQuery === 'object' && sanitizedQuery !== null ? sanitizedQuery : {}),
       populate: {
         Instructors: {
           fields: ['id', 'username', 'email', 'documentId'],
         },
         thumbnail: true,
-        lessons: true,
+        lessons: {
+          sort: 'order:asc',
+        },
       },
     });
 
@@ -81,6 +88,7 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
         username: inst.username,
         email: inst.email,
       })),
+      lessons: entity.lessons || [],
     };
 
     return this.transformResponse(formattedData);
@@ -89,7 +97,7 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
   // POST /api/courses (Create course and attach instructor)
   async create(ctx) {
     const user = ctx.state.user;
-    const userRole = (user?.role?.type || user?.role?.name || '').toLowerCase();
+    const userRole = user?.role?.type;
 
     let userDocId = user?.documentId;
     if (!userDocId && user?.id) {
@@ -119,7 +127,9 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
           fields: ['id', 'username', 'email', 'documentId'],
         },
         thumbnail: true,
-        lessons: true,
+        lessons: {
+          sort: 'order:asc',
+        },
       },
     });
 
@@ -137,6 +147,7 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
         username: inst.username,
         email: inst.email,
       })),
+      lessons: entity.lessons || [],
     };
 
     ctx.status = 201;

@@ -17,9 +17,6 @@
     "contents": {
       "type": "richtext"
     },
-    "url": {
-      "type": "string"
-    },
     "order": {
       "type": "integer"
     },
