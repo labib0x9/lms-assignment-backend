@@ -1,0 +1,34 @@
+{
+  "kind": "collectionType",
+  "collectionName": "questions",
+  "info": {
+    "singularName": "question",
+    "pluralName": "questions",
+    "displayName": "Question"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "question_text": {
+      "type": "text"
+    },
+    "options": {
+      "type": "json"
+    },
+    "correct_answer": {
+      "type": "string"
+    },
+    "points": {
+      "type": "integer",
+      "default": 1
+    },
+    "quiz": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::quiz.quiz",
+      "inversedBy": "questions"
+    }
+  }
+}
