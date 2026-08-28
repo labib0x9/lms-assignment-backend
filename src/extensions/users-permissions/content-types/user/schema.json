@@ -77,6 +77,12 @@
       "relation": "oneToMany",
       "target": "api::enroll.enroll",
       "mappedBy": "user"
+    },
+    "progresses": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::progress.progress",
+      "mappedBy": "user"
     }
   }
 }

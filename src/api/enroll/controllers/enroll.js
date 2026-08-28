@@ -9,7 +9,6 @@ const { createCoreController } = require('@strapi/strapi').factories;
 module.exports = createCoreController('api::enroll.enroll', ({ strapi }) => ({
   // GET /api/enrolls
   async find(ctx) {
-    const me = "jkjk"
     const user = ctx.state.user;
     if (!user) return ctx.unauthorized('You must be logged in to view enrollments.');
 
@@ -222,7 +221,7 @@ module.exports = createCoreController('api::enroll.enroll', ({ strapi }) => ({
       return ctx.badRequest('You are already enrolled in this course.');
     }
 
-    // 4. Create Enrollment Record (for manyToOne, pass documentId directly)
+    // 4. Create Enrollment Record
     const entity = await strapi.documents('api::enroll.enroll').create({
       data: {
         user: userDocId,
@@ -286,22 +285,53 @@ module.exports = createCoreController('api::enroll.enroll', ({ strapi }) => ({
 
     const entity = await strapi.documents('api::enroll.enroll').findOne({
       documentId: id,
-      populate: ['user'],
+      populate: {
+        user: {
+          fields: ['id', 'documentId'],
+        },
+        course: {
+          fields: ['id', 'documentId'],
+        },
+      },
     });
 
     if (!entity) return ctx.notFound('Enrollment record not found.');
 
     const entityObj = typeof entity === 'object' && entity !== null ? entity : {};
     const student = entityObj['user'];
+    const course = entityObj['course'];
 
     // Only the enrolled student or admin/content manager can cancel enrollment
     if (userRole === 'student' && student?.id !== user.id) {
       return ctx.forbidden('You do not have permission to delete this enrollment.');
     }
 
+    // 1. Delete the enrollment record
     await strapi.documents('api::enroll.enroll').delete({
       documentId: id,
     });
+
+    // 2. Clean up any completed lesson progress records for this course
+    if (course?.documentId) {
+      const userProgresses = await strapi.documents('api::progress.progress').findMany({
+        filters: {
+          user: {
+            id: user.id,
+          },
+          course: {
+            documentId: course.documentId,
+          },
+        },
+      });
+
+      for (const p of userProgresses || []) {
+        if (p.documentId) {
+          await strapi.documents('api::progress.progress').delete({
+            documentId: p.documentId,
+          });
+        }
+      }
+    }
 
     ctx.status = 200;
     return { success: true, message: 'Successfully unenrolled from course.' };
