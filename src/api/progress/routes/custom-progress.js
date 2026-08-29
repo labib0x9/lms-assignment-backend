@@ -8,7 +8,7 @@ module.exports = {
   routes: [
     {
       method: 'POST',
-      path: '/progresses/toggle-lesson',
+      path: '/progresses/lesson/toggle',
       handler: 'api::progress.progress.toggleLesson',
       config: {
         policies: [],
