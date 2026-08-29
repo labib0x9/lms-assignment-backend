@@ -8,37 +8,30 @@
 
 module.exports = async (policyContext, config, { strapi }) => {
   const user = policyContext.state.user;
-  if (!user) return false; // Blocks unauthenticated requests
+  if (!user) return false;
 
   const userRole = user.role?.type;
 
-  // 1. Admins and Content Managers have global access
-  if (userRole === 'admin' || userRole === 'content_manager' || userRole === 'content manager') {
+  if (userRole === 'admin' || userRole === 'content_manager') {
+    return true;
+  } else if (userRole !== 'instructor') {
+    return false;
+  }
+
+  const { id } = policyContext.params;
+
+  if (!id) {
     return true;
   }
 
-  // 2. Instructors:
-  if (userRole === 'instructor') {
-    const { id } = policyContext.params;
+  const course = await strapi.documents('api::course.course').findOne({
+    documentId: id,
+    populate: ['Instructors'],
+  });
 
-    // During course creation (POST /api/courses), there is no :id parameter yet -> ALLOW
-    if (!id) {
-      return true;
-    }
+  if (!course) return false;
 
-    // For update / delete (PUT/DELETE /api/courses/:id), verify ownership
-    const course = await strapi.documents('api::course.course').findOne({
-      documentId: id,
-      populate: ['Instructors'],
-    });
+  const isOwner = course.Instructors?.some((inst) => inst.id === user.id);
+  return Boolean(isOwner);
 
-    if (!course) return false;
-
-    // Check if the logged-in user is one of the instructors of this course
-    const isOwner = course.Instructors?.some((inst) => inst.id === user.id);
-    return Boolean(isOwner);
-  }
-
-  // Any other role is forbidden
-  return false;
 };
