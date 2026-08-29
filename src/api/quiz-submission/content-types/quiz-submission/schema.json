@@ -28,6 +28,9 @@
     "total_score": {
       "type": "integer"
     },
+    "answers": {
+      "type": "json"
+    },
     "submitted_at": {
       "type": "datetime"
     }

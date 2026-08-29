@@ -803,7 +803,7 @@ export interface ApiQuestionQuestion extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    correct_answer: Schema.Attribute.String;
+    correct_answer: Schema.Attribute.Integer;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -836,6 +836,7 @@ export interface ApiQuizSubmissionQuizSubmission
     draftAndPublish: false;
   };
   attributes: {
+    answers: Schema.Attribute.JSON;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

@@ -71,7 +71,7 @@ module.exports = createCoreController('api::question.question', ({ strapi }) => 
       data: {
         question_text: bodyData.question_text,
         options: bodyData.options,
-        correct_answer: bodyData.correct_answer,
+        correct_answer: Number(bodyData.correct_answer),
         points: bodyData.points !== undefined ? Number(bodyData.points) : 1,
         quiz: quiz.documentId,
       },

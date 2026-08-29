@@ -17,9 +17,6 @@
     "options": {
       "type": "json"
     },
-    "correct_answer": {
-      "type": "string"
-    },
     "points": {
       "type": "integer",
       "default": 1
@@ -29,6 +26,9 @@
       "relation": "manyToOne",
       "target": "api::quiz.quiz",
       "inversedBy": "questions"
+    },
+    "correct_answer": {
+      "type": "integer"
     }
   }
 }
