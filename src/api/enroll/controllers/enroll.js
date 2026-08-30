@@ -28,10 +28,6 @@ module.exports = createCoreController('api::enroll.enroll', ({ strapi }) => ({
   },
 }));
 
-// =========================================================
-// 🛠️ HELPER FUNCTIONS
-// =========================================================
-
 function formatEnrollmentItem(enroll, sanitized) {
   const sanitizedObj = typeof sanitized === 'object' && sanitized !== null ? sanitized : {};
   const enrollObj = typeof enroll === 'object' && enroll !== null ? enroll : {};
